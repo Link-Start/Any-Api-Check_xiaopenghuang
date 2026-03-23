@@ -21,7 +21,6 @@ def find_iscc() -> str | None:
     candidates = [
         env_candidate,
         shutil.which("ISCC.exe"),
-        r"G:\Inno Setup 6\ISCC.exe",
         r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
         r"C:\Program Files\Inno Setup 6\ISCC.exe",
     ]
