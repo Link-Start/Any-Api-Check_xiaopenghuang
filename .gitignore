@@ -1,43 +1,28 @@
-# Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-.venv/
-
-# PyInstaller
-build/
-dist/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-
-# Project specific - config directory
-config/config.json
-config/raw_response.json
-config/stats.json
-config/api_presets.json
-config/checkin_log.json
-
-results/
 debug/
-
-# Temp files
-nul
-
-# Local docs (not for publishing)
-docs/
-
-# Claude Code
+.vscode/
 .claude/
 
-# OS
-.DS_Store
-Thumbs.db
+# Runtime data
+config/app.db
+config/app.db-shm
+config/app.db-wal
+config/browser_profiles/
+config/browser_profiles/login_helper_cookies.json
+config/presets/api_presets.json
+
+# Docs
+docs/*
+!docs/README.en.md
+!docs/README.zh-CN.md
+
+# Build outputs
+dist/
+dist_verify/
+dist_installer/
+build/pyinstaller/
+build/pyinstaller_verify/
+build/spec/
+build/spec_verify/
+

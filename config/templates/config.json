@@ -1,0 +1,23 @@
+{
+  "profiles": [],
+  "minimize_to_tray": false,
+  "low_balance_threshold": 10.0,
+  "api_endpoints": {
+    "logs_page_size": 50
+  },
+  "auto_query": {
+    "enabled": false,
+    "interval_minutes": 30
+  },
+  "debug": {
+    "enable_api_log": false
+  },
+  "ui": {
+    "theme": "cosmo",
+    "use_background_image": false
+  },
+  "auto_checkin": {
+    "enabled": false,
+    "time": "09:00"
+  }
+}

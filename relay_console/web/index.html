@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Any-API-Check</title>
+    <link rel="icon" href="./icon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./echarts.min.js"></script>
+  </head>
+  <body>
+    <div id="toast-root" class="toast-root"></div>
+
+    <div class="app">
+      <aside class="rail">
+        <div class="brand">
+          <div class="brand-mark">A</div>
+          <div>
+            <strong>Any-API-Check</strong>
+            <span>中转站管理工作台</span>
+          </div>
+        </div>
+
+        <nav class="menu">
+          <button class="menu-item active" data-page="overview">
+            <span class="menu-icon">◈</span>
+            <span>总览</span>
+          </button>
+          <button class="menu-item" data-page="sites">
+            <span class="menu-icon">◎</span>
+            <span>站点管理</span>
+          </button>
+          <button class="menu-item" data-page="checkin">
+            <span class="menu-icon">✓</span>
+            <span>签到中心</span>
+          </button>
+          <button class="menu-item" data-page="models">
+            <span class="menu-icon">Σ</span>
+            <span>模型记录</span>
+          </button>
+          <button class="menu-item" data-page="console">
+            <span class="menu-icon">↗</span>
+            <span>验证与对话</span>
+          </button>
+          <button class="menu-item" data-page="settings">
+            <span class="menu-icon">⚙</span>
+            <span>设置</span>
+          </button>
+        </nav>
+
+        <div class="rail-foot">
+          <span id="rail-site-count">0 个站点</span>
+          <span id="rail-generated-at">--</span>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar card">
+          <div class="topbar-title">
+            <h1 id="page-title">总览</h1>
+            <p id="page-subtitle">查看关键指标和最近活动</p>
+          </div>
+          <div class="topbar-actions">
+            <span id="selected-site-pill" class="pill muted">未选择站点</span>
+            <button class="btn secondary" data-action="refresh_sites">刷新</button>
+            <button class="btn primary" data-action="reload_preview">重载</button>
+          </div>
+        </header>
+
+        <section class="page active" data-page-panel="overview">
+          <div id="metric-grid" class="metric-grid"></div>
+          <div class="split-grid">
+            <div id="chart-balance" class="card panel chart-box"></div>
+            <div id="chart-type" class="card panel chart-box"></div>
+          </div>
+          <div class="split-grid">
+            <div id="chart-checkin" class="card panel chart-box"></div>
+            <div id="chart-recharge" class="card panel chart-box"></div>
+          </div>
+              <div class="split-grid">
+                <article class="card panel">
+                  <div class="panel-head">
+                    <h2>站点快照</h2>
+                <button class="text-btn" data-page-jump="sites">去编辑</button>
+              </div>
+              <div id="overview-site-snapshot" class="kv-list"></div>
+            </article>
+            <article class="card panel">
+              <div class="panel-head">
+                <h2>最近活动</h2>
+                  </div>
+                  <div id="overview-activity" class="event-list"></div>
+                </article>
+              </div>
+          <div class="card panel">
+            <div class="panel-head">
+              <h2>最近动作日志</h2>
+              <button class="btn tiny" data-action="action_logs">刷新日志</button>
+            </div>
+            <div class="table-wrap">
+              <table class="table compact">
+                <thead>
+                  <tr>
+                    <th>时间</th>
+                    <th>动作</th>
+                    <th>状态</th>
+                    <th>站点</th>
+                    <th>信息</th>
+                  </tr>
+                </thead>
+                <tbody id="overview-action-logs-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" data-page-panel="sites">
+          <div class="sites-grid">
+            <article class="card panel">
+              <div class="panel-head">
+                <h2>站点列表</h2>
+                <button class="btn tiny" data-action="add_site">新增</button>
+              </div>
+              <input id="site-search" class="input" type="text" placeholder="搜索名称或 URL" />
+              <div id="site-list" class="site-list"></div>
+            </article>
+
+            <article class="card panel">
+              <div class="panel-head">
+                <h2>站点编辑</h2>
+                <div class="row-actions">
+                  <button class="btn tiny" data-action="save_site">保存</button>
+                  <button class="btn tiny danger" data-action="delete_selected">删除</button>
+                </div>
+              </div>
+
+              <div class="field-grid two">
+                <label class="field">
+                  <span>名称</span>
+                  <input id="site-name" class="input" type="text" />
+                </label>
+                <label class="field">
+                  <span>类型</span>
+                  <select id="site-type" class="input">
+                    <option value="free">公益站</option>
+                    <option value="paid">付费站</option>
+                    <option value="subscription">订阅站</option>
+                  </select>
+                </label>
+                <label class="field full">
+                  <span>Provider 策略</span>
+                  <select id="site-provider-template" class="input"></select>
+                </label>
+                <div id="site-provider-summary" class="inline-note field full"></div>
+                <label class="field full">
+                  <span>URL</span>
+                  <input id="site-url" class="input" type="text" placeholder="https://example.com" />
+                </label>
+                <label class="field full">
+                  <span>API Key</span>
+                  <input id="site-api-key" class="input" type="text" placeholder="sk-..." />
+                </label>
+                <label class="field full">
+                  <span>标签（逗号分隔）</span>
+                  <input id="site-tags" class="input" type="text" placeholder="anthropic, openai" />
+                </label>
+              </div>
+
+              <div class="action-strip">
+                <button class="btn secondary" data-action="query_site_balance">余额查询</button>
+                <button class="btn secondary" data-action="cookie_balance">Cookie 余额</button>
+                <button class="btn secondary" data-action="browser_login_helper">登录辅助</button>
+                <button class="btn secondary" data-action="query_site_logs">拉取日志</button>
+              </div>
+
+              <details class="advanced" open>
+                <summary>签到与认证</summary>
+                <div class="field-grid two">
+                  <label class="field">
+                    <span>签到页面</span>
+                    <input id="site-checkin-url" class="input" type="text" />
+                  </label>
+                  <label class="field">
+                    <span>签到 API Path</span>
+                    <input id="site-checkin-path" class="input" type="text" placeholder="/api/user/checkin" />
+                  </label>
+                  <label class="field">
+                    <span>Cookie</span>
+                    <textarea id="site-cookie" class="input area" rows="3"></textarea>
+                  </label>
+                  <label class="field">
+                    <span>User ID</span>
+                    <input id="site-user-id" class="input" type="text" />
+                  </label>
+                  <label class="field">
+                    <span>WAF Cookie 名称</span>
+                    <input id="site-waf-cookies" class="input" type="text" placeholder="cf_clearance, acw_tc" />
+                  </label>
+                  <label class="field">
+                    <span>附加请求头（JSON）</span>
+                    <textarea id="site-checkin-headers" class="input area" rows="3">{}</textarea>
+                  </label>
+                </div>
+              </details>
+
+              <details class="advanced">
+                <summary>高级字段</summary>
+                <div class="field-grid two">
+                  <label class="field">
+                    <span>余额认证方式</span>
+                    <select id="site-balance-auth-type" class="input">
+                      <option value="bearer">bearer</option>
+                      <option value="url_key">url_key</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>日志认证方式</span>
+                    <select id="site-log-auth-type" class="input">
+                      <option value="url_key">url_key</option>
+                      <option value="bearer">bearer</option>
+                    </select>
+                  </label>
+                  <label class="field full">
+                    <span>代理 URL</span>
+                    <input id="site-proxy" class="input" type="text" />
+                  </label>
+                  <label class="field full">
+                    <span>备注</span>
+                    <textarea id="site-notes" class="input area" rows="3"></textarea>
+                  </label>
+                </div>
+              </details>
+
+              <details class="advanced" open>
+                <summary>Provider 管理</summary>
+                <div class="provider-admin-grid">
+                  <div class="provider-admin-column">
+                    <div class="panel-head">
+                      <h2>Provider 列表</h2>
+                      <button class="btn tiny" data-action="add_provider">新增 Provider</button>
+                    </div>
+                    <div id="provider-list" class="provider-list"></div>
+                  </div>
+                  <div class="provider-admin-column">
+                    <div class="panel-head">
+                      <h2>Provider 编辑</h2>
+                      <div class="row-actions">
+                        <button class="btn tiny" data-action="save_provider">保存 Provider</button>
+                        <button class="btn tiny danger" data-action="delete_provider">删除 Provider</button>
+                      </div>
+                    </div>
+                    <div id="provider-builtin-note" class="inline-note">选择自定义 Provider 后可编辑。</div>
+                    <div class="field-grid two">
+                      <label class="field">
+                        <span>名称</span>
+                        <input id="provider-name" class="input" type="text" />
+                      </label>
+                      <label class="field">
+                        <span>描述</span>
+                        <input id="provider-description" class="input" type="text" />
+                      </label>
+                      <label class="field">
+                        <span>登录路径</span>
+                        <input id="provider-login-path" class="input" type="text" placeholder="/login" />
+                      </label>
+                      <label class="field">
+                        <span>签到路径</span>
+                        <input id="provider-sign-in-path" class="input" type="text" placeholder="/api/user/checkin" />
+                      </label>
+                      <label class="field">
+                        <span>用户信息路径</span>
+                        <input id="provider-user-info-path" class="input" type="text" placeholder="/api/user/self" />
+                      </label>
+                      <label class="field">
+                        <span>API User Header</span>
+                        <input id="provider-api-user-key" class="input" type="text" placeholder="new-api-user" />
+                      </label>
+                      <label class="field full">
+                        <span>WAF Cookie 名称</span>
+                        <input id="provider-waf-cookie-names" class="input" type="text" placeholder="acw_tc, cf_clearance" />
+                      </label>
+                    </div>
+                    <div class="checkbox-grid">
+                      <label><input id="provider-supports-cookie-auth" type="checkbox" /> 支持 Cookie 签到</label>
+                      <label><input id="provider-supports-browser-login" type="checkbox" /> 支持浏览器登录</label>
+                      <label><input id="provider-auto-checkin-via-user-info" type="checkbox" /> 用户信息接口自动签到</label>
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </article>
+          </div>
+        </section>
+
+        <section class="page" data-page-panel="checkin">
+          <div id="checkin-summary" class="metric-grid"></div>
+          <div class="card panel">
+            <div class="panel-head">
+              <h2>签到操作</h2>
+              <div class="row-actions">
+                <button class="btn secondary" data-action="checkin_current">当前站点签到</button>
+                <button class="btn secondary" data-action="waf_helper">WAF 助手</button>
+                <button class="btn secondary" data-action="checkin_logs">刷新记录</button>
+                <button class="btn primary" data-action="checkin_all">全部签到</button>
+              </div>
+            </div>
+            <div class="checkin-filter-bar">
+              <div class="filter-group">
+                <span class="filter-label">时间</span>
+                <button class="filter-btn active" data-checkin-date="recent">今天/昨天</button>
+                <button class="filter-btn" data-checkin-date="7d">近7天</button>
+                <button class="filter-btn" data-checkin-date="all">全部</button>
+              </div>
+              <div class="filter-group">
+                <span class="filter-label">状态</span>
+                <button class="filter-btn active" data-checkin-status="all">全部</button>
+                <button class="filter-btn" data-checkin-status="success">成功</button>
+                <button class="filter-btn" data-checkin-status="fail">失败</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>时间</th>
+                    <th>站点</th>
+                    <th>状态</th>
+                    <th>额度</th>
+                    <th>信息</th>
+                  </tr>
+                </thead>
+                <tbody id="checkin-logs-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="page" data-page-panel="models">
+          <div class="split-grid">
+            <article class="card panel">
+              <div class="panel-head">
+                <h2>可用模型</h2>
+                <span id="models-count" class="pill info">0</span>
+              </div>
+              <div class="table-wrap">
+                <table class="table compact">
+                  <thead>
+                    <tr>
+                      <th>名称</th>
+                      <th>模型 ID</th>
+                    </tr>
+                  </thead>
+                  <tbody id="models-catalog-body"></tbody>
+                </table>
+              </div>
+            </article>
+            <article class="card panel">
+              <div class="panel-head">
+                <h2>调用记录（当前站点）</h2>
+                <div class="row-actions">
+                  <button class="btn tiny" data-action="query_site_logs">刷新记录</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="table compact">
+                  <thead>
+                    <tr>
+                      <th>模型</th>
+                      <th>调用数</th>
+                      <th>Tokens</th>
+                      <th>额度</th>
+                    </tr>
+                  </thead>
+                  <tbody id="models-usage-body"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="page console-page" data-page-panel="console">
+          <div class="split-grid console-top-grid">
+            <article class="card panel console-panel console-form-panel">
+              <div class="panel-head">
+                <h2>验证与对话</h2>
+              </div>
+              <div id="console-config" class="field-grid two"></div>
+              <div class="action-strip">
+                <button class="btn secondary" data-action="test_connectivity">连通性</button>
+                <button class="btn secondary" data-action="test_authenticity">真伪验证</button>
+                <button class="btn primary" data-action="send_chat">发送对话</button>
+              </div>
+            </article>
+            <article class="card panel console-panel console-status-panel">
+              <div class="panel-head">
+                <h2>状态输出</h2>
+                <button id="clear-console" class="text-btn">清空</button>
+              </div>
+              <pre id="console-output" class="console"></pre>
+            </article>
+          </div>
+          <div class="console-mid-grid">
+            <article class="card panel console-panel console-history-panel">
+              <div class="panel-head">
+                <h2>检测历史</h2>
+                <button class="btn tiny" data-action="detection_history">刷新历史</button>
+              </div>
+              <div class="table-wrap console-history-wrap">
+                <table class="table compact">
+                  <thead>
+                    <tr>
+                      <th>时间</th>
+                      <th>类型</th>
+                      <th>状态</th>
+                      <th>格式</th>
+                      <th>模型</th>
+                      <th>说明</th>
+                    </tr>
+                  </thead>
+                  <tbody id="console-history-body"></tbody>
+                </table>
+              </div>
+            </article>
+            <article class="card panel console-panel console-viewer-panel">
+              <div class="panel-head">
+                <h2>结果查看</h2>
+                <div class="console-viewer-tabs">
+                  <button class="btn tiny console-viewer-tab active" type="button" data-console-view="detail">检测详情</button>
+                  <button class="btn tiny console-viewer-tab" type="button" data-console-view="request">请求体</button>
+                  <button class="btn tiny console-viewer-tab" type="button" data-console-view="response">响应体</button>
+                </div>
+              </div>
+              <div class="console-viewer">
+                <pre id="console-history-detail" class="console compact console-view active" data-console-panel="detail"></pre>
+                <pre id="console-request" class="console compact console-view" data-console-panel="request"></pre>
+                <pre id="console-response" class="console compact console-view" data-console-panel="response"></pre>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="page" data-page-panel="settings"></section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
